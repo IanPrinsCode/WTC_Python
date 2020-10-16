@@ -18,10 +18,3 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(text.position_x, 0)
         self.assertEqual(text.position_y, 0)
         self.assertEqual(text.current_direction_index, 0)
-
-
-    def funcname(parameter_list):
-        """
-        docstring
-        """
-        pass
