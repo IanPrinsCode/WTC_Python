@@ -1,17 +1,17 @@
-# from sys import argv
-# import world.obstacles as obs
-# if len(argv) > 1 and argv[1] == 'turtle':
-#     from world.turtle import world
-# else:
-#     from world.text import world
-from maze import obstacles as obs
+import os
+from sys import argv
+import mazerunner as runner
+if len(argv) > 1 and argv[1] == 'turtle':
+    from world.turtle import world
+else:
+    from world.text import world
 
 
 #commands history
 history = []
 
 # list of valid command names
-valid_commands = ['off', 'help', 'replay', 'forward', 'back', 'right', 'left', 'sprint']
+valid_commands = ['off', 'help', 'replay', 'forward', 'back', 'right', 'left', 'sprint', 'mazerun']
 move_commands = valid_commands[3:]
 
 def get_robot_name():
@@ -111,6 +111,40 @@ REPLAY - replays all movement commands from history [FORWARD, BACK, RIGHT, LEFT,
 """
 
 
+def do_replay(robot_name, arguments):
+    """
+    Replays historic commands
+    :param robot_name:
+    :param arguments a string containing arguments for the replay command
+    :return: True, output string
+    """
+
+    silent = arguments.lower().find('silent') > -1
+    reverse = arguments.lower().find('reversed') > -1
+    range_args = arguments.lower().replace('silent', '').replace('reversed', '')
+
+    range_start = None
+    range_end = None
+
+    if len(range_args.strip()) > 0:
+        if is_int(range_args):
+            range_start = -int(range_args)
+        else:
+            range_args = range_args.split('-')
+            range_start = -int(range_args[0])
+            range_end = -int(range_args[1])
+
+    commands_to_replay = get_commands_history(reverse, range_start, range_end)
+
+    for (command_name, command_arg) in commands_to_replay:
+        (do_next, command_output) = call_command(command_name, command_arg, robot_name)
+        if not silent:
+            print(command_output)
+            world.show_position(robot_name)
+
+    return True, ' > '+robot_name+' replayed ' + str(len(commands_to_replay)) + ' commands' + (' in reverse' if reverse else '') + (' silently.' if silent else '.')
+
+
 def get_commands_history(reverse, relativeStart, relativeEnd):
     """
     Retrieve the commands from history list, already breaking them up into (command_name, arguments) tuples
@@ -149,6 +183,9 @@ def call_command(command_name, command_arg, robot_name):
         return world.do_sprint(robot_name, int(command_arg))
     elif command_name == 'replay':
         return do_replay(robot_name, command_arg)
+    elif command_name == 'mazerun':
+        runner.do_mazerun()
+        return True, ' > ' + robot_name + ' starting maze run..'
     return False, None
 
 
@@ -183,40 +220,6 @@ def add_to_history(command):
     history.append(command)
 
 
-def do_replay(robot_name, arguments):
-    """
-    Replays historic commands
-    :param robot_name:
-    :param arguments a string containing arguments for the replay command
-    :return: True, output string
-    """
-
-    silent = arguments.lower().find('silent') > -1
-    reverse = arguments.lower().find('reversed') > -1
-    range_args = arguments.lower().replace('silent', '').replace('reversed', '')
-
-    range_start = None
-    range_end = None
-
-    if len(range_args.strip()) > 0:
-        if is_int(range_args):
-            range_start = -int(range_args)
-        else:
-            range_args = range_args.split('-')
-            range_start = -int(range_args[0])
-            range_end = -int(range_args[1])
-
-    commands_to_replay = get_commands_history(reverse, range_start, range_end)
-
-    for (command_name, command_arg) in commands_to_replay:
-        (do_next, command_output) = call_command(command_name, command_arg, robot_name)
-        if not silent:
-            print(command_output)
-            world.show_position(robot_name)
-
-    return True, ' > '+robot_name+' replayed ' + str(len(commands_to_replay)) + ' commands' + (' in reverse' if reverse else '') + (' silently.' if silent else '.')
-
-
 def robot_start():
     """This is the entry point for starting my robot"""
 
@@ -226,7 +229,7 @@ def robot_start():
     output(robot_name, "Hello kiddo!")
 
     world.list_obstacles()
-    world.start_world()
+    world.start_world(robot_name)
 
     history = []
 
@@ -234,7 +237,6 @@ def robot_start():
     while handle_command(robot_name, command):
         command = get_command(robot_name)
 
-    obs.obstacles.clear()
     output(robot_name, "Shutting down..")
 
 

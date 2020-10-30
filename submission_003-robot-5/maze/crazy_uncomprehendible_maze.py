@@ -1,17 +1,27 @@
-import random
+import turtle
+import functools
+from random import randint
 
-# globals
 obstacles = []
 
 def create_random_obstacles():
     """
-    Generates random coordinate tuples and appends them into the empty obstacles list.
+    Generates list of obstacle coordinates that will draw out the maze constraint in turtle graphics.
     """
     global obstacles
-    obstacles.clear()
+    
+    
+    return obstacles
 
-    obstacles = [(random.randint(-100, 100), random.randint(-200, 200)) for i in range(random.randint(0, 10))]
 
+def get_obstacles():
+    """
+    Returns the list of generated and saved obstacle coordinates.
+    """
+    global obstacles
+
+    if len(obstacles) == 0:
+        obstacles = create_random_obstacles()
     return obstacles
 
 
@@ -20,8 +30,6 @@ def is_position_blocked(x, y):
     Tests if the robot will land on an obstacle for a certain movement.  Returns True if it will and False otherwise.
     """
     global obstacles
-
-    
 
     for item in obstacles:
         if x >= item[0] and x <= (item[0] + 4) and y >= item[1] and y <= (item[1] + 4):
@@ -68,12 +76,6 @@ def is_path_blocked(x1, y1, x2, y2):
 
     return False
 
-def get_obstacles():
-    """
-    Returns the list of generated and saved obstacle coordinates.
-    """
-    global obstacles
-    
-    if len(obstacles) == 0:
-        obstacles = create_random_obstacles()
-    return obstacles
+
+if __name__ == "__main__":
+    print(create_random_obstacles())

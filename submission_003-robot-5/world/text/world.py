@@ -1,4 +1,14 @@
-from maze import obstacles as obs
+from maze import obstacles
+import os
+import import_helper
+from sys import argv
+if len(argv) > 2 and os.path.exists("maze/" + argv[2] + ".py"):
+    obs = import_helper.dynamic_import("maze." + argv[2])
+elif len(argv) > 2 and os.path.exists("maze/" + argv[2] + ".py") == False:
+    print("Maze file not found")
+    obs = import_helper.dynamic_import("maze.obstacles")
+else:
+    obs = import_helper.dynamic_import("maze.obstacles")
 
 # variables tracking position and direction
 position_x = 0
@@ -13,16 +23,15 @@ min_x, max_x = -100, 100
 # globals
 is_obstructed = False
 
+obstacles = []
 
 def list_obstacles():
     """
     This funtion prints a list of object coordinates, that are saved in the obstacle_list, onto the console.
     """
+    global obstacles
+
     obstacles = obs.get_obstacles()
-    if obstacles:
-        print("There are some obstacles:")
-        for item in obstacles:
-            print("- At position {0},{1} (to {2},{3})".format(str(item[0]), str(item[1]), str(item[0]+4), str(item[1] + 4)))
 
 
 def show_position(robot_name):
@@ -155,11 +164,19 @@ def do_sprint(robot_name, steps):
         return do_sprint(robot_name, steps - 1)
 
 
-def start_world():
+def start_world(robot_name):
     """
     Set up variables after program starts.
     """
-    global position_x, position_y, current_direction_index
+    global position_x, position_y, current_direction_index, obstacles
     position_x = 0
     position_y = 0
     current_direction_index = 0
+    if len(argv) > 2 and os.path.exists("maze/" + argv[2] + ".py"):
+        print(robot_name + ": Loaded " + argv[2] + ".")
+    else:
+        print(robot_name + ": Loaded obstacles.")
+    if obstacles:
+        print("There are some obstacles:")
+        for item in obstacles:
+            print("- At position {0},{1} (to {2},{3})".format(str(item[0]), str(item[1]), str(item[0]+4), str(item[1] + 4)))

@@ -1,5 +1,14 @@
+import import_helper
+from sys import argv
 import turtle
-from maze import obstacles as obs
+import os
+if len(argv) > 2 and os.path.exists("maze/" + argv[2] + ".py"):
+    obs = import_helper.dynamic_import("maze." + argv[2])
+elif len(argv) > 2 and os.path.exists("maze/" + argv[2] + ".py") == False:
+    print("Maze file not found")
+    obs = import_helper.dynamic_import("maze.obstacles")
+else:
+    obs = import_helper.dynamic_import("maze.obstacles")
 
 # globals
 character = object
@@ -21,14 +30,16 @@ min_x, max_x = -100, 100
 valid_commands = ['off', 'help', 'replay', 'forward', 'back', 'right', 'left', 'sprint']
 move_commands = valid_commands[3:]
 
+obstacles = []
 
 def list_obstacles():
     """
     This funtion prints a list of object coordinates, that are saved in the obstacles, onto the console.
     """
-    obstacles = obs.get_obstacles()
+    global obstacles
 
-    pass
+    obstacles.clear()
+    obstacles = obs.get_obstacles()
 
 
 def is_int(value):
@@ -128,6 +139,8 @@ def set_up_graphics():
     character.turtlesize(3)
     character.color("black", "red")
     character.speed(1)
+    character.home()
+    character.setheading(90)
 
 
 def draw_range_constraint():
@@ -147,18 +160,18 @@ def draw_range_constraint():
     character.goto(-100, -200)
     character.penup()
     character.goto(0, 0)
-    character.setheading(90)
 
 
 def draw_obstacles():
     """
     Draws all obstacles on the turtle graphics grid by using the coordinates from obstacles.
     """
-    global character
+    global character, obstacles
 
     character.pencolor("red")
     character.speed(0)
-    for item in obs.obstacles:
+    turtle.tracer(n=0, delay=0) 
+    for item in obstacles:
         character.fillcolor("red")
         character.penup()
         character.goto(item[0], item[1])
@@ -169,6 +182,7 @@ def draw_obstacles():
         character.goto(item[0] + 4, item[1])
         character.goto(item[0], item[1])
         character.end_fill()
+    turtle.tracer(True)
 
 
 def do_forward(robot_name, steps):
@@ -266,7 +280,7 @@ def do_sprint(robot_name, steps):
         return do_sprint(robot_name, steps - 1)
 
 
-def start_world():
+def start_world(robot_name):
     """
     Initialize graphical world with objects and constraints as program starts.
     """
@@ -275,6 +289,10 @@ def start_world():
     position_y = 0
     current_direction_index = 0
     initialize_objects()
+    set_up_graphics()
     draw_obstacles()
     draw_range_constraint()
-    set_up_graphics()
+    if len(argv) > 2 and os.path.exists("maze/" + argv[2] + ".py"):
+        print(robot_name + ": Loaded " + argv[2] + ".")
+    elif len(argv) == 1:
+        print(robot_name + ": Loaded obstacles.")
