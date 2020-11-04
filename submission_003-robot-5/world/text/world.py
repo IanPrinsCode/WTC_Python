@@ -10,6 +10,7 @@ elif len(argv) > 2 and os.path.exists("maze/" + argv[2] + ".py") == False:
 else:
     obs = import_helper.dynamic_import("maze.obstacles")
 
+
 # variables tracking position and direction
 position_x = 0
 position_y = 0

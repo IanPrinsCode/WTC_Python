@@ -24,6 +24,12 @@ def gen_horisontal(start_x, end_x, y_value):
             start_x -= 20
             end_x += 20
 
+    for item in obstacles:
+        if -90 < item[0] < 90 and item[1] == 200:
+            obstacles.remove(item)
+        if -90 < item[0] < 90 and item[1] == -200:
+            obstacles.remove(item)
+
 
 def gen_vertical(start_y, end_y, x_value):
     """
@@ -88,8 +94,7 @@ def is_position_blocked(x, y):
     for item in obstacles:
         if x >= item[0] and x <= (item[0] + 4) and y >= item[1] and y <= (item[1] + 4):
             return True 
-        else:
-            return False
+    return False
 
 
 def is_path_blocked(x1, y1, x2, y2):

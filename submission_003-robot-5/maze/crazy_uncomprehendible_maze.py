@@ -34,8 +34,7 @@ def is_position_blocked(x, y):
     for item in obstacles:
         if x >= item[0] and x <= (item[0] + 4) and y >= item[1] and y <= (item[1] + 4):
             return True 
-        else:
-            return False
+    return False
 
 
 def is_path_blocked(x1, y1, x2, y2):

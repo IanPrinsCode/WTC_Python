@@ -1,23 +1,28 @@
+from maze import obstacles
 import os
-from os import curdir
-from turtle import left, right
 import import_helper
 from sys import argv
-from maze import pretty_normal_maze as obs
-# if len(argv) > 2 and os.path.exists("maze/" + argv[2] + ".py"):
-#     obs = import_helper.dynamic_import("maze." + argv[2])
-# elif len(argv) > 2 and os.path.exists("maze/" + argv[2] + ".py") == False:
-#     print("Maze file not found")
-#     obs = import_helper.dynamic_import("maze.obstacles")
-# else:
-#     obs = import_helper.dynamic_import("maze.obstacles")
+if len(argv) > 1 and argv[1] == 'turtle':
+    from world.turtle import world
+else:
+    from world.text import world
+if len(argv) > 2 and os.path.exists("maze/" + argv[2] + ".py"):
+    obs = import_helper.dynamic_import("maze." + argv[2])
+elif len(argv) > 2 and os.path.exists("maze/" + argv[2] + ".py") == False:
+    print("Maze file not found")
+    obs = import_helper.dynamic_import("maze.obstacles")
+else:
+    obs = import_helper.dynamic_import("maze.obstacles")
 
+# variables tracking position and direction
+position_x = 0
+position_y = 0
+directions = ['forward', 'right', 'back', 'left']
+current_direction_index = 0
 
 trace_back = []
 blocked = []
 trace_split_indexes = []
-
-path_count = 0
 is_tracing = False
 
 
@@ -27,16 +32,21 @@ def is_multi_path(current):
     """
     open_paths = 4
 
-    if obs.is_position_blocked(current[0] - 1, current[1]) == True and (current[0] - 1, current[1]) not in trace_back:
+    left_pos = (current[0] - 1, current[1])
+    top_pos = (current[0], current[1] + 1)
+    right_pos = (current[0] + 1, current[1])
+    bottom_pos = (current[0], current[1] - 1)
+
+    if obs.is_position_blocked(left_pos[0], left_pos[1]) == True and (left_pos) not in trace_back:
         open_paths -= 1
-    if obs.is_position_blocked(current[0], current[1] + 1) == True and (current[0], current[1] + 1) not in trace_back:
+    if obs.is_position_blocked(top_pos[0], top_pos[1]) == True and (top_pos) not in trace_back:
         open_paths -= 1
-    if obs.is_position_blocked(current[0] + 1, current[1]) == True and (current[0] + 1, current[1]) not in trace_back:
+    if obs.is_position_blocked(right_pos[0], right_pos[1]) == True and (right_pos) not in trace_back:
         open_paths -= 1
-    if obs.is_position_blocked(current[0], current[1] - 1) == True and (current[0], current[1] - 1) not in trace_back:
+    if obs.is_position_blocked(bottom_pos[0], bottom_pos[1]) == True and (bottom_pos) not in trace_back:
         open_paths -= 1
 
-    if open_paths > 2:
+    if open_paths > 1:
         return True
     else:
         return False
@@ -46,7 +56,9 @@ def start_trace():
     """
     docstring
     """
-    global is_tracing
+    global is_tracing, trace_split_indexes, trace_back
+
+    trace_split_indexes.append(len(trace_back) - 1)
     is_tracing = True
 
 
@@ -64,6 +76,7 @@ def retrace(current):
     """
     global trace_back, is_tracing, blocked, trace_split_indexes
 
+    # if len(trace_split_indexes) != 0:
     current = trace_back[trace_split_indexes[-1]]
 
     blocked += trace_back[trace_split_indexes[-1]:-1:]
@@ -72,6 +85,7 @@ def retrace(current):
     trace_split_indexes.pop()
     if len(trace_split_indexes) == 0:
         stop_trace()
+    return current
 
 
 def run_blocked_checker(current):
@@ -85,13 +99,13 @@ def run_blocked_checker(current):
     right_pos = (current[0] + 1, current[1])
     bottom_pos = (current[0], current[1] - 1)
 
-    if obs.is_position_blocked(current[0] - 1, current[1]):
+    if obs.is_position_blocked(left_pos[0], left_pos[1]):
         blocked.append(left_pos)
-    if obs.is_position_blocked(current[0], current[1] + 1):
+    if obs.is_position_blocked(top_pos[0], top_pos[1]):
         blocked.append(top_pos)
-    if obs.is_position_blocked(current[0] + 1, current[1]):
+    if obs.is_position_blocked(right_pos[0], right_pos[1]):
         blocked.append(right_pos)
-    if obs.is_position_blocked(current[0], current[1] - 1):
+    if obs.is_position_blocked(bottom_pos[0], bottom_pos[1]):
         blocked.append(bottom_pos)
 
 
@@ -99,26 +113,23 @@ def move_current(current):
     """
     docstring
     """
-    global blocked, trace_back, path_count
+    global blocked, trace_back
 
-    # if obs.is_position_blocked(current[0], current[1] + 1) == False and (current[0], current[1] + 1) not in trace_back:
-    #     current = (current[0], current[1] + 1)
-    # elif obs.is_position_blocked(current[0] - 1, current[1]) == False and (current[0] - 1, current[1]) not in trace_back:
-    #     current = (current[0] - 1, current[1])
-    # elif obs.is_position_blocked(current[0] + 1, current[1]) == False and (current[0] + 1, current[1]) not in trace_back:
-    #     current = (current[0] + 1, current[1])
-    # elif obs.is_position_blocked(current[0], current[1] - 1) == False and (current[0], current[1] - 1) not in trace_back:
-    #     current = (current[0], current[1] - 1)
-    if (current[0], (current[1] + 1)) not in blocked and (current[0], (current[1] + 1)) not in trace_back:
-        current = (current[0], current[1] + 1)
-    elif ((current[0] - 1), current[1]) not in blocked and ((current[0] - 1), current[1]) not in trace_back:
-        current = (current[0] - 1, current[1])
-    elif ((current[0] + 1), current[1]) not in blocked and ((current[0] + 1), current[1]) not in trace_back:
-        current = (current[0] + 1, current[1])
-    elif (current[0], (current[1] - 1)) not in blocked and (current[0], (current[1] - 1)) not in trace_back:
-        current = (current[0], (current[1] - 1))
+    left_pos = (current[0] - 1, current[1])
+    top_pos = (current[0], current[1] + 1)
+    right_pos = (current[0] + 1, current[1])
+    bottom_pos = (current[0], current[1] - 1)
+
+    if (top_pos) not in blocked and (top_pos) not in trace_back:
+        current = (top_pos)
+    elif (left_pos) not in blocked and (left_pos) not in trace_back:
+        current = (left_pos)
+    elif (right_pos) not in blocked and (right_pos) not in trace_back:
+        current = (right_pos)
+    elif (bottom_pos) not in blocked and (bottom_pos) not in trace_back:
+        current = (bottom_pos)
     else:
-        retrace(current)
+        current = retrace(current)
         return current
     trace_back.append(current)
     return current
@@ -136,13 +147,42 @@ def is_in_range(current):
         return True
 
 
+def do_movements(position_x, position_y, current_direction_index):
+    """
+    docstring
+    """
+    global trace_back
+
+    for i in range(len(trace_back)):
+
+        left_pos = (current[0] - 1, current[1])
+        top_pos = (current[0], current[1] + 1)
+        right_pos = (current[0] + 1, current[1])
+        bottom_pos = (current[0], current[1] - 1)
+
+
+
+
+
+        
+
+
+
 def do_mazerun():
     """
     docstring
     """
-    global blocked
+    global position_x, position_y, directions, current_direction_index
+    global trace_back, trace_split_indexes, blocked
+
+    position_x = world.position_x
+    position_y = world.position_y
+    current_direction_index = world.current_direction_index
+
+    trace_back = []
+    trace_split_indexes = []
+    blocked = []
     current = [0, 0]
-    obstacles = obs.get_obstacles()
 
     while is_in_range(current):
         run_blocked_checker(current)
@@ -150,8 +190,11 @@ def do_mazerun():
             start_trace()
         current = move_current(current)
 
-    print("Blocked: " + str(blocked))
-    print()
+    do_movements(position_x, position_y, current_direction_index)
+    # for point in trace_back:
+
+    # print("Blocked: " + str(blocked))
+    # print()
     print("Path: " + str(trace_back))
 
-do_mazerun()
+# do_mazerun()
