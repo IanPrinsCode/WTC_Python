@@ -27,6 +27,9 @@ def show_results(correct_digits_and_position, correct_digits_only):
 """
 def take_turn(code):
     answer = input("Input 4 digit code: ")
+    for digit in answer:
+        if digit.isdigit() == False:
+            take_turn(code)
     while len(answer) < 4 or len(answer) > 4:
         print("Please enter exactly 4 digits.")
         answer = input("Input 4 digit code: ")
