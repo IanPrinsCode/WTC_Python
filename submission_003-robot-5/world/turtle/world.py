@@ -134,7 +134,7 @@ def set_up_graphics():
     """
     global character
 
-    turtle.title("Toy Robot 4")
+    turtle.title("Toy Robot 5")
     turtle.bgcolor("white")
     character.turtlesize(3)
     character.color("black", "red")

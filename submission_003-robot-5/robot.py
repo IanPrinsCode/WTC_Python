@@ -184,7 +184,7 @@ def call_command(command_name, command_arg, robot_name):
     elif command_name == 'replay':
         return do_replay(robot_name, command_arg)
     elif command_name == 'mazerun':
-        runner.do_mazerun()
+        runner.do_mazerun(robot_name)
         return True, ' > ' + robot_name + ' starting maze run..'
     return False, None
 
