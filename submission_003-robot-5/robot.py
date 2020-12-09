@@ -222,7 +222,6 @@ def add_to_history(command):
 
 def robot_start():
     """This is the entry point for starting my robot"""
-
     global history
 
     robot_name = get_robot_name()
