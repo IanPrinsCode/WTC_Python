@@ -91,7 +91,14 @@ def is_path_blocked(x1,y1, x2, y2):
 
 def get_obstacles():
     global obstacles
+    generate_obstacles()
     #for x in obstacles:
     #    if x == (0,0):
     #        obstacles.remove(x)
+
+    # if len(obstacles) != 0:
+    #     for obst in obstacles:
+    #         if obst[0] == -100 and obst[1] > 190:
+    #             print(obst)
+
     return obstacles

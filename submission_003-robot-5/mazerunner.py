@@ -177,6 +177,36 @@ def find_top_exit(open_coordinates):
             return end_point
 
 
+def find_left_exit(open_coordinates):
+    """
+    docstring
+    """
+    for x, y in open_coordinates:
+        if x == -100:
+            end_point = (x, y)
+            return end_point
+
+
+def find_bottom_exit(open_coordinates):
+    """
+    docstring
+    """
+    for x, y in open_coordinates:
+        if y == -200:
+            end_point = (x, y)
+            return end_point
+
+    
+def find_right_exit(open_coordinates):
+    """
+    docstring
+    """
+    for x, y in open_coordinates:
+        if x == 100:
+            end_point = (x, y)
+            return end_point
+
+
 def run_block_checker(my_dict, current, i):
     """
     docstring
@@ -275,9 +305,9 @@ def do_mazerun(robot_name):
 
     my_dict.update({current : i})
 
-    while my_dict[end_point] == 0:
     # while 0 in my_dict.values():
     # while i < 10000:
+    while my_dict[end_point] == 0:
         for key, value in my_dict.items():
             if value == i:
                 my_dict = run_block_checker(my_dict, key, i)
