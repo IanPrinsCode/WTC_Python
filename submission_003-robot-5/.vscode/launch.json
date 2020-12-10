@@ -8,7 +8,7 @@
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
-            "program": "/goinfre/iprins/Documents/WTC_Python/submission_003-robot-5/robot.py",
+            "program": "/root/Documents/WTC_Python/submission_003-robot-5/robot.py",
             "console": "integratedTerminal",
             "args": ["text", "pretty_normal_maze"]
         }

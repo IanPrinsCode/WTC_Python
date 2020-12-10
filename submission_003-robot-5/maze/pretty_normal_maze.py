@@ -68,9 +68,6 @@ def create_random_obstacles():
     gen_horisontal(start_x, end_x, start_y)
     gen_vertical(start_y, end_y, start_x)
 
-    print()
-    print("obstacle_list" + str(obstacles))
-    print()
     return obstacles
 
 
