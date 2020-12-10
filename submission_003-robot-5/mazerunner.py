@@ -16,11 +16,113 @@ else:
     obs = import_helper.dynamic_import("maze.obstacles")
 
 
-def make_one_unit_obstacles(parameter_list):
+def do_move_forward(robot_name):
     """
     docstring
     """
-    pass
+    handle_command(robot_name, 'forward 1')
+
+
+def do_move_right(robot_name):
+    """
+    docstring
+    """
+    handle_command(robot_name, 'right')
+    handle_command(robot_name, 'forward 1')
+
+
+def do_move_back(robot_name):
+    """
+    docstring
+    """
+    handle_command(robot_name, 'right')
+    handle_command(robot_name, 'right')
+    handle_command(robot_name, 'forward 1')
+
+
+def do_move_left(robot_name):
+    """
+    docstring
+    """
+    handle_command(robot_name, 'left')
+    handle_command(robot_name, 'forward 1')
+
+
+def do_movements(robot_name, path):
+    """
+    docstring
+    """
+    directions = ['forward', 'right', 'back', 'left']
+    position_x = world.position_x
+    position_y = world.position_y
+    current_direction_index = world.current_direction_index
+    
+
+    while len(path) > 1:
+        
+        left_pos = (position_x - 1, position_y)
+        top_pos = (position_x, position_y + 1)
+        right_pos = (position_x + 1, position_y)
+        bottom_pos = (position_x, position_y - 1)
+
+        if directions[current_direction_index] == 'forward':
+            if path[1] == top_pos:
+                do_move_forward(robot_name)
+                current_direction_index = 0
+            if path[1] == right_pos:
+                do_move_right(robot_name)
+                current_direction_index = 1
+            if path[1] == bottom_pos:
+                do_move_back(robot_name)
+                current_direction_index = 2
+            if path[1] == left_pos:
+                do_move_left(robot_name)
+                current_direction_index = 3
+
+        elif directions[current_direction_index] == 'left':
+            if path[1] == top_pos:
+                do_move_right(robot_name)
+                current_direction_index = 0
+            if path[1] == right_pos:
+                do_move_back(robot_name)
+                current_direction_index = 1
+            if path[1] == bottom_pos:
+                do_move_left(robot_name)
+                current_direction_index = 2
+            if path[1] == left_pos:
+                do_move_forward(robot_name)
+                current_direction_index = 3
+
+        elif directions[current_direction_index] == 'back':
+            if path[1] == top_pos:
+                do_move_back(robot_name)
+                current_direction_index = 0
+            if path[1] == right_pos:
+                do_move_left(robot_name)
+                current_direction_index = 1
+            if path[1] == bottom_pos:
+                do_move_forward(robot_name)
+                current_direction_index = 2
+            if path[1] == left_pos:
+                do_move_right(robot_name)
+                current_direction_index = 3
+
+        elif directions[current_direction_index] == 'right':
+            if path[1] == top_pos:
+                do_move_left(robot_name)
+                current_direction_index = 0
+            if path[1] == right_pos:
+                do_move_forward(robot_name)
+                current_direction_index = 1
+            if path[1] == bottom_pos:
+                do_move_right(robot_name)
+                current_direction_index = 2
+            if path[1] == left_pos:
+                do_move_back(robot_name)
+                current_direction_index = 3
+        path.pop(0)
+        position_x = path[0][0]
+        position_y = path[0][1]
 
 
 def get_open_coordinates():
@@ -28,12 +130,9 @@ def get_open_coordinates():
     docstring
     """
     obstacles = obs.get_obstacles()
-    all_coordinates = []
     one_unit_obstacles = []
 
-    for i in range(-100, 101, 1):
-        for j in range(-200, 201, 1):
-            all_coordinates.append((i, j))
+    all_coordinates = get_all_coordinates()
 
     for x, y in obstacles:
         for i in range(0, 5):
@@ -92,22 +191,26 @@ def run_block_checker(my_dict, current, i):
     # if left_pos in my_dict.keys() and obs.is_position_blocked(left_pos[0], left_pos[1]) == False:
     if left_pos in my_dict.keys():
         if my_dict[left_pos] == 0:
-            my_dict.update({left_pos : checked})
+            my_dict[left_pos] = checked
+            # my_dict.update({left_pos : checked})
 
     # if top_pos in my_dict.keys() and obs.is_position_blocked(top_pos[0], top_pos[1]) == False:
     if top_pos in my_dict.keys():
         if my_dict[top_pos] == 0:
-            my_dict.update({top_pos : checked})
+            my_dict[top_pos] = checked
+            # my_dict.update({top_pos : checked})
 
     # if right_pos in my_dict.keys() and obs.is_position_blocked(right_pos[0], right_pos[1]) == False:
     if right_pos in my_dict.keys():
         if my_dict[right_pos] == 0:
-            my_dict.update({left_pos : checked})
+            my_dict[right_pos] = checked
+            # my_dict.update({left_pos : checked})
 
     # if bottom_pos in my_dict.keys() and obs.is_position_blocked(bottom_pos[0], bottom_pos[1]) == False:
     if bottom_pos in my_dict.keys():
         if my_dict[bottom_pos] == 0:
-            my_dict.update({bottom_pos : checked})
+            my_dict[bottom_pos] = checked
+            # my_dict.update({bottom_pos : checked})
 
     return my_dict
 
@@ -153,9 +256,6 @@ def retrace_path(my_dict, current, start_point):
 
     return path
 
-        # print(last_val)
-
-
 
 def do_mazerun(robot_name):
     """
@@ -166,28 +266,31 @@ def do_mazerun(robot_name):
     position_x = world.position_x
     position_y = world.position_y
     current = (position_x, position_y)
+    i = 1
 
     # all_coordinates = get_all_coordinates()
     open_coordinates = get_open_coordinates()
     my_dict = map_coordinates_to_values(my_dict, open_coordinates)
     end_point = find_top_exit(open_coordinates)
-    i = 1
 
     my_dict.update({current : i})
 
     while my_dict[end_point] == 0:
+    # while 0 in my_dict.values():
     # while i < 10000:
         for key, value in my_dict.items():
             if value == i:
                 my_dict = run_block_checker(my_dict, key, i)
         i += 1
 
-    for key, value in my_dict.items():
-        if value > 1:
-            print((key, value))
+    # for key, value in my_dict.items():
+    #     if value > 1:
+    #         print((key, value))
 
     path = retrace_path(my_dict, end_point, current)
+    path = path[::-1]
 
-    print(path)
+    do_movements(robot_name, path)
 
 
+    # print(path)
