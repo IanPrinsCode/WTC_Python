@@ -84,7 +84,7 @@ def valid_command(command):
                 range_args = range_args.split('-')
                 return is_int(range_args[0]) and is_int(range_args[1]) and len(range_args) == 2
     else:
-        return command_name.lower() in valid_commands and (len(arg1) == 0 or is_int(arg1))
+        return command_name.lower() in valid_commands and (len(arg1) == 0 or is_int(arg1) or arg1 in ['bottom', 'top', 'left', 'right'])
 
 
 def output(name, message):
@@ -184,8 +184,8 @@ def call_command(command_name, command_arg, robot_name):
     elif command_name == 'replay':
         return do_replay(robot_name, command_arg)
     elif command_name == 'mazerun':
-        runner.do_mazerun(robot_name)
-        return True, ' > ' + robot_name + ' starting maze run..'
+        runner.do_mazerun(robot_name, command_arg)
+        return True, ' > ' + robot_name + ': I have reached the edge !'
     return False, None
 
 

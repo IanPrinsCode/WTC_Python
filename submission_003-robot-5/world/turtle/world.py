@@ -90,7 +90,6 @@ def update_position(steps):
     :param steps:
     :return: True if the position was updated, else False
     """
-
     global position_x, position_y, is_obstructed
     is_obstructed = False
     new_x = position_x

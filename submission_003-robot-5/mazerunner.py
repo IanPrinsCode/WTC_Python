@@ -15,17 +15,37 @@ elif len(argv) > 2 and os.path.exists("maze/" + argv[2] + ".py") == False:
 else:
     obs = import_helper.dynamic_import("maze.obstacles")
 
+# if len(argv) == 3:
+#     try:
+#         obstacles = import_helper.dynamic_import("maze.{}".format(sys.argv[2]))
+#     except ModuleNotFoundError:
+#         import maze.obstacles as obstacles
+# else:
+#     import maze.obstacles as obstacles
+
 
 def do_move_forward(robot_name):
     """
-    docstring
+    Does forward movement in robot world.
+
+    Parameters:
+        robot_name (str): Robot's name used for prints.
+
+    Returns:
+        none
     """
     handle_command(robot_name, 'forward 1')
 
 
 def do_move_right(robot_name):
     """
-    docstring
+    Does right movement in robot world.
+
+    Parameters:
+        robot_name (str): Robot's name used for prints.
+
+    Returns:
+        none
     """
     handle_command(robot_name, 'right')
     handle_command(robot_name, 'forward 1')
@@ -33,7 +53,13 @@ def do_move_right(robot_name):
 
 def do_move_back(robot_name):
     """
-    docstring
+    Does backward movement in robot world.
+
+    Parameters:
+        robot_name (str): Robot's name used for prints.
+
+    Returns:
+        none
     """
     handle_command(robot_name, 'right')
     handle_command(robot_name, 'right')
@@ -42,7 +68,13 @@ def do_move_back(robot_name):
 
 def do_move_left(robot_name):
     """
-    docstring
+    Does left movement in robot world.
+
+    Parameters:
+        robot_name (str): Robot's name used for prints.
+
+    Returns:
+        none
     """
     handle_command(robot_name, 'left')
     handle_command(robot_name, 'forward 1')
@@ -50,14 +82,21 @@ def do_move_left(robot_name):
 
 def do_movements(robot_name, path):
     """
-    docstring
+    Initiates movements for the robot to run the maze after
+    the path is already found.
+
+    Parameters:
+        robot_name (str): Robot's name used for prints.
+        path (list): Contains coordinates of the path to exit the maze.
+
+    Returns:
+        none
     """
     directions = ['forward', 'right', 'back', 'left']
     position_x = world.position_x
     position_y = world.position_y
     current_direction_index = world.current_direction_index
     
-
     while len(path) > 1:
         
         left_pos = (position_x - 1, position_y)
@@ -127,13 +166,19 @@ def do_movements(robot_name, path):
 
 def get_open_coordinates():
     """
-    docstring
+    Gets all open coordinates in the grid using the obstcles list from the maze file.
+
+    Parameters:
+        none
+
+    Returns:
+        open_coordinates (list): List of open coordinates.
     """
     obstacles = obs.get_obstacles()
     one_unit_obstacles = []
 
     all_coordinates = get_all_coordinates()
-
+    print('wow jeezz boet')
     for x, y in obstacles:
         for i in range(0, 5):
             for j in range(0, 5):
@@ -196,7 +241,7 @@ def find_bottom_exit(open_coordinates):
             end_point = (x, y)
             return end_point
 
-    
+
 def find_right_exit(open_coordinates):
     """
     docstring
@@ -287,7 +332,7 @@ def retrace_path(my_dict, current, start_point):
     return path
 
 
-def do_mazerun(robot_name):
+def do_mazerun(robot_name, arg):
     """
     docstring
     """
@@ -298,29 +343,37 @@ def do_mazerun(robot_name):
     current = (position_x, position_y)
     i = 1
 
-    # all_coordinates = get_all_coordinates()
+    print(' > ' + robot_name + ' starting maze run..')
+
     open_coordinates = get_open_coordinates()
     my_dict = map_coordinates_to_values(my_dict, open_coordinates)
-    end_point = find_top_exit(open_coordinates)
 
+    if arg == 'left':
+        end_point = find_left_exit(open_coordinates)
+    if arg == 'right':
+        end_point = find_right_exit(open_coordinates)
+    if arg == 'bottom':
+        end_point = find_bottom_exit(open_coordinates)
+    else:
+        end_point = find_top_exit(open_coordinates)
+
+    # 
+    # remember to add accounting for if end_point is none
+    #
+
+    # set the start point to 1 in the grid of zeros
     my_dict.update({current : i})
-
-    # while 0 in my_dict.values():
-    # while i < 10000:
+    
+    # main path-finding loop
     while my_dict[end_point] == 0:
         for key, value in my_dict.items():
             if value == i:
                 my_dict = run_block_checker(my_dict, key, i)
         i += 1
 
-    # for key, value in my_dict.items():
-    #     if value > 1:
-    #         print((key, value))
-
+    # find path out of all possible paths by decrementing from exit point
     path = retrace_path(my_dict, end_point, current)
+    # inverse path for use in do_movements
     path = path[::-1]
 
     do_movements(robot_name, path)
-
-
-    # print(path)
