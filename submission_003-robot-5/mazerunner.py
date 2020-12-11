@@ -377,3 +377,17 @@ def do_mazerun(robot_name, arg):
     path = path[::-1]
 
     do_movements(robot_name, path)
+
+
+
+
+
+    if __name__ == "__main__":
+        one_unit_obstacles = []
+
+
+        for i in range(0, 5):
+            for j in range(0, 5):
+                one_unit_obstacles.append((1 + i, 1 + j))
+
+        print(len(one_unit_obstacles))
