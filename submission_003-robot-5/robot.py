@@ -29,7 +29,6 @@ def get_command(robot_name):
     Asks the user for a command, and validate it as well
     Only return a valid command
     """
-
     prompt = ''+robot_name+': What must I do next? '
     command = input(prompt)
     while len(command) == 0 or not valid_command(command):
@@ -89,7 +88,7 @@ def valid_command(command):
 
 def output(name, message):
     """
-    Prints a output.
+    Prints an output.
     """
     print(''+name+": "+message)
 
@@ -118,7 +117,6 @@ def do_replay(robot_name, arguments):
     :param arguments a string containing arguments for the replay command
     :return: True, output string
     """
-
     silent = arguments.lower().find('silent') > -1
     reverse = arguments.lower().find('reversed') > -1
     range_args = arguments.lower().replace('silent', '').replace('reversed', '')
@@ -153,7 +151,6 @@ def get_commands_history(reverse, relativeStart, relativeEnd):
     :param relativeEnd: the start index relative to the end position of command, e.g. -1 means from index len(commands)-1; None means to the end
     :return: return list of (command_name, arguments) tuples
     """
-
     commands_to_replay = [(name, args) for (name, args) in list(map(lambda command: split_command_input(command), history)) if name in move_commands]
     if reverse:
         commands_to_replay.reverse()
@@ -184,8 +181,7 @@ def call_command(command_name, command_arg, robot_name):
     elif command_name == 'replay':
         return do_replay(robot_name, command_arg)
     elif command_name == 'mazerun':
-        runner.do_mazerun(robot_name, command_arg)
-        return True, ' > ' + robot_name + ': I have reached the edge !'
+        return runner.do_mazerun(robot_name, command_arg) 
     return False, None
 
 
@@ -196,7 +192,6 @@ def handle_command(robot_name, command):
     :param command: the command entered by user
     :return: `True` if the robot must continue after the command, or else `False` if robot must shutdown
     """
-
     (command_name, arg) = split_command_input(command)
 
     if command_name == 'off':

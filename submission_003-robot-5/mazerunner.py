@@ -1,5 +1,4 @@
 from robot import handle_command
-from maze import obstacles
 import os
 import import_helper
 from sys import argv
@@ -17,7 +16,7 @@ else:
 
 # if len(argv) == 3:
 #     try:
-#         obstacles = import_helper.dynamic_import("maze.{}".format(sys.argv[2]))
+#         obstacles = import_helper.dynamic_import("maze.{}".format(argv[2]))
 #     except ModuleNotFoundError:
 #         import maze.obstacles as obstacles
 # else:
@@ -178,7 +177,7 @@ def get_open_coordinates():
     one_unit_obstacles = []
 
     all_coordinates = get_all_coordinates()
-    print('wow jeezz boet')
+
     for x, y in obstacles:
         for i in range(0, 5):
             for j in range(0, 5):
@@ -191,7 +190,13 @@ def get_open_coordinates():
 
 def get_all_coordinates():
     """
-    docstring
+    Finds all possible coordinates in the grid
+
+    Parameters:
+        none
+
+    Returns:
+        all_coordinates (list): All coordinates in grid.
     """
     all_coordinates = []
 
@@ -204,7 +209,14 @@ def get_all_coordinates():
 
 def map_coordinates_to_values(my_dict, open_coordinates):
     """
-    docstring
+    Maps all open_coordinates to a value used to track the shortest path.
+
+    Parameters:
+        my_dict (dict): Empty dictionary.
+        open_coordinates (list): All open coordinates.
+
+    Returns:
+        my_dict (dict): Dictionary with open_coordinates each mapped to the value 0.
     """
     for position in open_coordinates:
         my_dict.update({position : 0})
@@ -212,49 +224,87 @@ def map_coordinates_to_values(my_dict, open_coordinates):
     return my_dict
 
 
-def find_top_exit(open_coordinates):
+def find_top_exit():
     """
-    docstring
+    Finds an endpoint for the mazerun by scanning the top line of the grid.
+
+    Parameters:
+        none
+
+    Returns:
+        The coordinate of the exit. (if it finds an exit)
+        none (if it does not find an exit)
     """
-    for x, y in open_coordinates:
-        if y == 200:
-            end_point = (x, y)
-            return end_point
+    for i in range(201):
+        if not obs.is_position_blocked(-100 + i, 200):
+            return (-100 + i, 200)
+    return None
 
 
-def find_left_exit(open_coordinates):
+def find_left_exit():
     """
-    docstring
+    Finds an endpoint for the mazerun by scanning the left line of the grid.
+
+    Parameters:
+        none
+
+    Returns:
+        The coordinate of the exit. (if it finds an exit)
+        none (if it does not find an exit)
     """
-    for x, y in open_coordinates:
-        if x == -100:
-            end_point = (x, y)
-            return end_point
+    for j in range(401):
+        if not obs.is_position_blocked(-100, -200 + j):
+            return (-100, -200 + j)
+    return None
 
 
-def find_bottom_exit(open_coordinates):
+def find_bottom_exit():
     """
-    docstring
-    """
-    for x, y in open_coordinates:
-        if y == -200:
-            end_point = (x, y)
-            return end_point
+    Finds an endpoint for the mazerun by scanning the bottom line of the grid.
 
+    Parameters:
+        none
 
-def find_right_exit(open_coordinates):
+    Returns:
+        The coordinate of the exit. (if it finds an exit)
+        none (if it does not find an exit)
     """
-    docstring
+    for i in range(201):
+        if not obs.is_position_blocked(-100 + i, -200):
+            return (-100 + i, -200)
+    return None
+
+    
+def find_right_exit():
     """
-    for x, y in open_coordinates:
-        if x == 100:
-            end_point = (x, y)
-            return end_point
+    Finds an endpoint for the mazerun by scanning the right line of the grid.
+
+    Parameters:
+        none
+
+    Returns:
+        The coordinate of the exit. (if it finds an exit)
+        none (if it does not find an exit)
+    """
+    for j in range(401):
+        if not obs.is_position_blocked(100, -200 + j):
+            return (100, -200 + j)
+    return None
 
 
 def run_block_checker(my_dict, current, i):
     """
-    docstring
+    For each coordinate mapped to value i in my_dict, this function changes the value of
+    all neighbouring positions to i+1 if that position's value is still 0 and also not blocked
+    by an obstacle.
+
+    Parameters:
+        my_dict (dict): Current dictionary of coordinates and values.
+        current (tuple): The current coordinate being checked.
+        i (int): The value associated with current.
+
+    Returns:
+        my_dict (dict): Dictionary with updated values on  each loop.
     """
     checked = i + 1
 
@@ -263,40 +313,41 @@ def run_block_checker(my_dict, current, i):
     right_pos = (current[0] + 1, current[1])
     bottom_pos = (current[0], current[1] - 1)
 
-    # if left_pos in my_dict.keys() and obs.is_position_blocked(left_pos[0], left_pos[1]) == False:
     if left_pos in my_dict.keys():
         if my_dict[left_pos] == 0:
             my_dict[left_pos] = checked
-            # my_dict.update({left_pos : checked})
 
-    # if top_pos in my_dict.keys() and obs.is_position_blocked(top_pos[0], top_pos[1]) == False:
     if top_pos in my_dict.keys():
         if my_dict[top_pos] == 0:
             my_dict[top_pos] = checked
-            # my_dict.update({top_pos : checked})
 
-    # if right_pos in my_dict.keys() and obs.is_position_blocked(right_pos[0], right_pos[1]) == False:
     if right_pos in my_dict.keys():
         if my_dict[right_pos] == 0:
             my_dict[right_pos] = checked
-            # my_dict.update({left_pos : checked})
 
-    # if bottom_pos in my_dict.keys() and obs.is_position_blocked(bottom_pos[0], bottom_pos[1]) == False:
     if bottom_pos in my_dict.keys():
         if my_dict[bottom_pos] == 0:
             my_dict[bottom_pos] = checked
-            # my_dict.update({bottom_pos : checked})
 
     return my_dict
 
 
 def retrace_path(my_dict, current, start_point):
     """
-    docstring
+    Retraces the shortest path, by starting at the endpoint and moving through coordinates while
+    decrementing the values associated with the coordinates. On each step adding coordinates
+    to path (list).
+
+    Parameters:
+        my_dict (dict): Dictionary containing all possible paths.
+        current (tuple): The end_point of the shortest path is passed as current.
+        start_point (tuple): The starting point of the pathfinder is passed as start_point.
+
+    Returns:
+        path (list): The end path in reverse.
     """
     path = []
     last_val = my_dict[current]
-    
 
     while current != start_point:
 
@@ -334,7 +385,14 @@ def retrace_path(my_dict, current, start_point):
 
 def do_mazerun(robot_name, arg):
     """
-    docstring
+    Main for doing mazerun.
+
+    Parameters:
+        robot_name (str): Robot's name, used for prints.
+        arg (str): Sencond arg passed alongside 'mazerun' (direction to solve).
+
+    Returns:
+        none
     """
     my_dict = {}
 
@@ -348,18 +406,18 @@ def do_mazerun(robot_name, arg):
     open_coordinates = get_open_coordinates()
     my_dict = map_coordinates_to_values(my_dict, open_coordinates)
 
+    # interpreting different second args (which maze exit to use)
     if arg == 'left':
-        end_point = find_left_exit(open_coordinates)
+        end_point = find_left_exit()
     if arg == 'right':
-        end_point = find_right_exit(open_coordinates)
+        end_point = find_right_exit()
     if arg == 'bottom':
-        end_point = find_bottom_exit(open_coordinates)
+        end_point = find_bottom_exit()
     else:
-        end_point = find_top_exit(open_coordinates)
+        end_point = find_top_exit()
 
-    # 
-    # remember to add accounting for if end_point is none
-    #
+    if end_point == None:
+        return True, ' > ' + robot_name + ': I have reached the' + arg + 'edge !'
 
     # set the start point to 1 in the grid of zeros
     my_dict.update({current : i})
@@ -371,23 +429,10 @@ def do_mazerun(robot_name, arg):
                 my_dict = run_block_checker(my_dict, key, i)
         i += 1
 
-    # find path out of all possible paths by decrementing from exit point
     path = retrace_path(my_dict, end_point, current)
-    # inverse path for use in do_movements
+    # reverse path for use in do_movements
     path = path[::-1]
 
     do_movements(robot_name, path)
 
-
-
-
-
-    if __name__ == "__main__":
-        one_unit_obstacles = []
-
-
-        for i in range(0, 5):
-            for j in range(0, 5):
-                one_unit_obstacles.append((1 + i, 1 + j))
-
-        print(len(one_unit_obstacles))
+    return True, ' > ' + robot_name + ': I have reached the' + arg + 'edge !'

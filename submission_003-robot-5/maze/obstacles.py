@@ -21,8 +21,6 @@ def is_position_blocked(x, y):
     """
     global obstacles
 
-    
-
     for item in obstacles:
         if x >= item[0] and x <= (item[0] + 4) and y >= item[1] and y <= (item[1] + 4):
             return True 

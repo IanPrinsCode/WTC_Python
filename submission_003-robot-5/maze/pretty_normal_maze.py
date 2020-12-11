@@ -6,7 +6,7 @@ obstacles = []
 
 def gen_horisontal(start_x, end_x, y_value):
     """
-    docstring
+    Generates all horisontal lines in the maze.
     """
     global obstacles
 
@@ -33,7 +33,7 @@ def gen_horisontal(start_x, end_x, y_value):
 
 def gen_vertical(start_y, end_y, x_value):
     """
-    docstring
+    Generates all vertical lines in the maze.
     """
     global obstacles
 
