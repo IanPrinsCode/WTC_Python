@@ -1,4 +1,4 @@
-from robot import handle_command
+import robot
 import os
 import import_helper
 from sys import argv
@@ -6,21 +6,13 @@ if len(argv) > 1 and argv[1] == 'turtle':
     from world.turtle import world
 else:
     from world.text import world
-if len(argv) > 2 and os.path.exists("maze/" + argv[2] + ".py"):
-    obs = import_helper.dynamic_import("maze." + argv[2])
-elif len(argv) > 2 and os.path.exists("maze/" + argv[2] + ".py") == False:
-    print("Maze file not found")
-    obs = import_helper.dynamic_import("maze.obstacles")
+if len(argv) == 3:
+    try:
+        obs = import_helper.dynamic_import("maze.{}".format(argv[2]))
+    except ModuleNotFoundError:
+        import maze.obstacles as obs
 else:
-    obs = import_helper.dynamic_import("maze.obstacles")
-
-# if len(argv) == 3:
-#     try:
-#         obstacles = import_helper.dynamic_import("maze.{}".format(argv[2]))
-#     except ModuleNotFoundError:
-#         import maze.obstacles as obstacles
-# else:
-#     import maze.obstacles as obstacles
+    import maze.obstacles as obs
 
 
 def do_move_forward(robot_name):
@@ -33,7 +25,7 @@ def do_move_forward(robot_name):
     Returns:
         none
     """
-    handle_command(robot_name, 'forward 1')
+    robot.handle_command(robot_name, 'forward 1')
 
 
 def do_move_right(robot_name):
@@ -46,8 +38,8 @@ def do_move_right(robot_name):
     Returns:
         none
     """
-    handle_command(robot_name, 'right')
-    handle_command(robot_name, 'forward 1')
+    robot.handle_command(robot_name, 'right')
+    robot.handle_command(robot_name, 'forward 1')
 
 
 def do_move_back(robot_name):
@@ -60,9 +52,9 @@ def do_move_back(robot_name):
     Returns:
         none
     """
-    handle_command(robot_name, 'right')
-    handle_command(robot_name, 'right')
-    handle_command(robot_name, 'forward 1')
+    robot.handle_command(robot_name, 'right')
+    robot.handle_command(robot_name, 'right')
+    robot.handle_command(robot_name, 'forward 1')
 
 
 def do_move_left(robot_name):
@@ -75,8 +67,8 @@ def do_move_left(robot_name):
     Returns:
         none
     """
-    handle_command(robot_name, 'left')
-    handle_command(robot_name, 'forward 1')
+    robot.handle_command(robot_name, 'left')
+    robot.handle_command(robot_name, 'forward 1')
 
 
 def do_movements(robot_name, path):
@@ -409,15 +401,16 @@ def do_mazerun(robot_name, arg):
     # interpreting different second args (which maze exit to use)
     if arg == 'left':
         end_point = find_left_exit()
-    if arg == 'right':
+    elif arg == 'right':
         end_point = find_right_exit()
-    if arg == 'bottom':
+    elif arg == 'bottom':
         end_point = find_bottom_exit()
     else:
         end_point = find_top_exit()
+        arg = 'top'
 
     if end_point == None:
-        return True, ' > ' + robot_name + ': I have reached the' + arg + 'edge !'
+        return True, ' > ' + robot_name + ': There is no way out of the maze!'
 
     # set the start point to 1 in the grid of zeros
     my_dict.update({current : i})
@@ -435,4 +428,4 @@ def do_mazerun(robot_name, arg):
 
     do_movements(robot_name, path)
 
-    return True, ' > ' + robot_name + ': I have reached the' + arg + 'edge !'
+    return True, ' > ' + robot_name + ': I am at the ' + arg + ' edge.'
