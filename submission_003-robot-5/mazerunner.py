@@ -156,7 +156,7 @@ def do_movements(robot_name, path):
 
 def get_open_coordinates():
     """
-    Gets all open coordinates in the grid using the obstcles list from the maze file.
+    Gets all open coordinates in the grid using the is_position_blocked from the maze file.
 
     Parameters:
         none
@@ -164,17 +164,9 @@ def get_open_coordinates():
     Returns:
         open_coordinates (list): List of open coordinates.
     """
-    obstacles = obs.get_obstacles()
-    one_unit_obstacles = []
-
     all_coordinates = get_all_coordinates()
 
-    for x, y in obstacles:
-        for i in range(0, 5):
-            for j in range(0, 5):
-                one_unit_obstacles.append((x + i, y + j))
-
-    open_coordinates = [x for x in all_coordinates if x not in one_unit_obstacles]
+    open_coordinates = [x for x in all_coordinates if not obs.is_position_blocked(x[0], x[1])]
 
     return open_coordinates
 
