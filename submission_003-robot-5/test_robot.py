@@ -286,16 +286,3 @@ BOB: What must I do next?  > BOB moved forward by 5 steps.
 BOB: What must I do next?  > BOB replayed 2 commands in reverse silently.
  > BOB now at position (-5,0).
 BOB: What must I do next? BOB: Shutting down..""", output)
-
-
-#     def test_mazerun(self):
-#         with captured_io(StringIO("bob\nmazerun\noff\n")) as (out, err):
-#             obstacles.random.randint = lambda a, b : 1
-#             robot.robot_start()
-
-#         output = out.getvalue().strip()
-#         self.assertTrue(output.find("""What do you want to name your robot? BOB: Hello kiddo!
-# BOB: Loaded obstacles.
-# There are some obstacles:
-# - At position 1,1 (to 5,5)
-#  > BOB starting maze run..""") > -1)
