@@ -1,5 +1,4 @@
 import robot
-import os
 import import_helper
 from sys import argv
 if len(argv) > 1 and argv[1] == 'turtle':
